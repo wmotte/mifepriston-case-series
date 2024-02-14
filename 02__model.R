@@ -3,6 +3,7 @@
 # Determine Cred. Interval and Bayes Factor for for PCL data (n-of-1)
 #
 # Wim Otte (w.m.otte@umcutrecht.nl), 19 June 2023.
+# added ar() comment, 14 February 2024.
 #
 ################################################################################
 
@@ -55,9 +56,16 @@ for( case in cases )
 
     ## model without group effect
     model_nb_null <- brms::brm( y ~ 1, data = data, family = negbinomial(), save_pars = save_pars( all = TRUE ) )
-        
+    
+    # to check autocorrelation, change 'y ~ group' to 'y ~ group + ar()' or higher order with ar( p = 2 ), ar( p = 3 ), ...
+    # see: https://paul-buerkner.github.io/brms/reference/ar.html
+    # and calculate the Bayes Factor against the non-autocorrelated-corrected null (i.e., 'y ~ group') model.
+    
     ## model with group effect
+    #model_nb_group_with_ar <- brms::brm( y ~ group + ar(), data = data, family = negbinomial(), save_pars = save_pars( all = TRUE ) )
     model_nb_group <- brms::brm( y ~ group, data = data, family = negbinomial(), save_pars = save_pars( all = TRUE ) )
+    
+    # print( brms::bayes_factor( model_nb_group_with_ar, model_nb_group ) )
     
     # estimated Bayes factor ratio
     print( bf_nb_group_over_null <- brms::bayes_factor( model_nb_group, model_nb_null ) )
